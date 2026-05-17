@@ -180,12 +180,12 @@ const issueDocument = asyncHandler(async (req, res) => {
   const hash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
 
   // 3. Generate unique Seal ID
-  const sealId = generateSealId();
+  const sealId = await generateSealId();
 
   // 4. Generate QR code using qrcode npm package
   const qrUrl = `http://localhost:5173/verify/${sealId}`;
   const qrCode = await generateQRCode(qrUrl);
-  
+
   const fileName = req.file.originalname || 'Document';
 
   // 4. Save document in MongoDB
@@ -198,7 +198,7 @@ const issueDocument = asyncHandler(async (req, res) => {
     issueDate,
     qrCode,
     createdBy: req.user.id,
-    
+
     // Existing required fields to satisfy schema validation
     documentHash: hash,
     hashAlgorithm: 'SHA-256',
@@ -229,9 +229,9 @@ const issueDocument = asyncHandler(async (req, res) => {
 const getHistory = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 10;
   const docs = await Document.find({ createdBy: req.user.id })
-                             .sort({ createdAt: -1 })
-                             .limit(limit);
-                             
+    .sort({ createdAt: -1 })
+    .limit(limit);
+
   res.status(200).json({
     success: true,
     data: docs
