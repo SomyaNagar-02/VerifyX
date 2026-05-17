@@ -180,6 +180,19 @@ const issueDocument = asyncHandler(async (req, res) => {
   const hash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
 
   // 3. Generate unique Seal ID
+  // Check if document already exists
+  const existingDocument = await Document.findOne({ hash });
+
+  if (existingDocument) {
+    return res.status(200).json({
+      success: true,
+      alreadyExists: true,
+      message: "Document already sealed",
+      sealId: existingDocument.sealId,
+      qrCode: existingDocument.qrCode,
+      existing: true,
+    });
+  }
   const sealId = await generateSealId();
 
   // 4. Generate QR code using qrcode npm package
