@@ -4,7 +4,6 @@
 const calculateConfidence = ({
   hashSimilarity = 0,
   ocrSimilarity = 0,
-  fieldSimilarity = 0,
   pHashSimilarity = 0,
   isExactHashMatch = false
 }) => {
@@ -14,9 +13,8 @@ const calculateConfidence = ({
 
   // Weight distributions
   const WEIGHTS = {
-    hash: 0.40,      // Semantic Hash / pHash (Highest)
-    field: 0.35,     // Field Similarity (High)
-    ocr: 0.25        // OCR Similarity (Medium)
+    hash: 0.60,      // Semantic Hash / pHash (Highest)
+    ocr: 0.40        // OCR Similarity (Medium)
   };
 
   // Determine the primary hash score to use
@@ -24,7 +22,6 @@ const calculateConfidence = ({
 
   const overallConfidence = Math.round(
     (primaryHashScore * WEIGHTS.hash) +
-    (fieldSimilarity * WEIGHTS.field) +
     (ocrSimilarity * WEIGHTS.ocr)
   );
 

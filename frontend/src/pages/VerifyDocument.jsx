@@ -17,7 +17,7 @@ import VerificationMetadataCard from '../components/VerificationMetadataCard';
 import VerificationUpload from '../components/VerificationUpload';
 import VerificationResult from '../components/VerificationResult';
 import useVerificationProcessing from '../hooks/useVerificationProcessing';
-import axios from 'axios';
+import API from '../services/api';
 
 const VerifyDocument = () => {
   const { sealId } = useParams();
@@ -82,9 +82,10 @@ const VerifyDocument = () => {
       setApiVerificationError(null);
       
       try {
-        const response = await axios.post('http://localhost:5000/api/verify/compare', {
+        const { preprocessedPreview, normalizedContent, ...verificationPayload } = result;
+        const response = await API.post('/verify/compare', {
           sealId,
-          ...result
+          ...verificationPayload
         });
         setApiVerificationResult(response.data);
       } catch (err) {
@@ -104,7 +105,7 @@ const VerifyDocument = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await axios.get(`http://localhost:5000/api/document/${sealId}`);
+        const response = await API.get(`/document/${sealId}`);
         const data = response.data.data || response.data;
         setMetadata(data);
       } catch (err) {

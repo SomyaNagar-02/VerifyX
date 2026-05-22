@@ -41,19 +41,18 @@ exports.getDocumentMetadata = asyncHandler(async (req, res) => {
 exports.verifyDocumentCompare = asyncHandler(async (req, res) => {
   const { sealId, documentHash, ocrText, fields, pHash } = req.body;
 
-  if (!sealId) {
-    return res.status(400).json(generateErrorResponse("Seal ID is required"));
-  }
-
   if (!documentHash && !pHash) {
     return res.status(400).json(generateErrorResponse("Malformed payload: Missing cryptographic hash"));
   }
+
+  // Validate hash presence (already done above, keeping space for comments)
 
   // ocrText is optional — digital PDFs are verified via SHA-256 hash directly,
   // OCR is only supplementary for scanned/image documents.
   // We allow empty ocrText as long as a hash is present.
 
-  const document = await Document.findOne({ sealId });
+  const query = (sealId && sealId.trim()) ? { sealId } : { documentHash: documentHash || pHash };
+  const document = await Document.findOne(query);
 
   if (!document) {
     return res.status(404).json(generateErrorResponse("Document not found"));

@@ -17,7 +17,6 @@ import { extractPdfContent } from './extractPdfContent';
 import { normalizeContent } from './normalizeContent';
 import { generateSHA256 } from './generateSHA256';
 import { runOCR } from './runOCR';
-import { extractFields, getFieldCompleteness } from './extractFields';
 
 // ─── Processing stages ─────────────────────────────────────────────────────────
 export const STAGES = {
@@ -122,15 +121,21 @@ export const processDocument = async (file, onProgress = () => {}) => {
     }
   }
 
-  // ── Step 3: Extract structured fields ───────────────────────────────────────
+  // ── Step 3: Skip structured fields ────────────────────────────────────────
   onProgress(STAGES.FIELDS, 90);
-  // Use whichever text source is richer
-  const fieldSource = ocrText && ocrText.length > rawText.length ? ocrText : rawText;
-  fields = extractFields(fieldSource);
-  const fieldCompleteness = getFieldCompleteness(fields);
+  fields = {};
+  const fieldCompleteness = { filled: 0, total: 0, percentage: 0 };
 
   // ── Step 4: Build final payload ─────────────────────────────────────────────
   onProgress(STAGES.COMPLETE, 100);
+
+  if (!documentHash) {
+    throw new Error(
+      fileType === 'PDF' 
+      ? 'No readable text found in PDF. If this is a scanned document, please convert it to an image and use "Scanned Image" mode.' 
+      : 'Could not extract any content to generate a cryptographic hash.'
+    );
+  }
 
   const processingTimeMs = Date.now() - startTime;
 

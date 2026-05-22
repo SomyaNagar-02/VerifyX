@@ -47,7 +47,7 @@ app.use(
 );
 
 // ─── Request Parsing ───────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }));        // Limit body size to prevent abuse
+app.use(express.json({ limit: '10mb' }));        // Limit body size to prevent abuse
 app.use(express.urlencoded({ extended: false }));
 
 // ─── Logging (dev only) ────────────────────────────────────────────────────────

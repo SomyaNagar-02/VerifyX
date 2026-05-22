@@ -9,17 +9,23 @@ import TestProcessing from './pages/TestProcessing';
 import TestImageVerification from './pages/TestImageVerification';
 import VerifyEntry from './pages/VerifyEntry';
 import VerifyDocument from './pages/VerifyDocument';
+import Profile from './pages/Profile';
 import ProtectedRoute from './routes/ProtectedRoute';
+import PublicRoute from './routes/PublicRoute';
 
 function App() {
   return (
     <Routes>
       {/* ── Public Routes ─────────────────────────────── */}
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
       <Route path="/manual-verify" element={<VerifyEntry />} />
       <Route path="/verify/:sealId" element={<VerifyDocument />} />
+
+      {/* ── Auth Routes (Redirects if logged in) ──────── */}
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
 
       {/* ── Protected Routes ──────────────────────────── */}
       <Route element={<ProtectedRoute />}>
@@ -28,6 +34,7 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/process" element={<TestProcessing />} />
         <Route path="/image-verify" element={<TestImageVerification />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>
   );

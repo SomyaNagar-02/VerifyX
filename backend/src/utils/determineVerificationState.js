@@ -4,9 +4,7 @@
 const determineVerificationState = ({
   isExactHashMatch,
   overallConfidence,
-  criticalMismatch,
-  ocrSimilarity,
-  fieldSimilarity
+  ocrSimilarity
 }) => {
   let result = 'RED';
   let message = 'Document verification failed. Significant discrepancies found.';
@@ -17,16 +15,10 @@ const determineVerificationState = ({
     return { result, message };
   }
 
-  if (criticalMismatch) {
-    result = 'RED';
-    message = 'Document verification failed. Critical field mismatch detected.';
-    return { result, message };
-  }
-
   if (overallConfidence >= 85) {
     result = 'GREEN';
-    message = 'Document verified successfully via high semantic and field correlation.';
-  } else if (overallConfidence >= 65 || ocrSimilarity >= 70 || fieldSimilarity >= 70) {
+    message = 'Document verified successfully via high semantic correlation.';
+  } else if (overallConfidence >= 65 || ocrSimilarity >= 70) {
     result = 'YELLOW';
     message = 'Document partially verified. Minor discrepancies or layout changes detected.';
   }

@@ -12,6 +12,7 @@ import {
   GridItem,
   Grid,
   VStack,
+  HStack,
   Spinner,
   Skeleton,
   Icon
@@ -19,7 +20,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { toaster } from '../components/ui/toaster';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import API from '../services/api';
 import {
   UploadCloud,
   ShieldCheck,
@@ -28,7 +29,9 @@ import {
   Clock,
   Activity,
   ChevronLeft,
-  Image
+  Image,
+  Download,
+  Copy
 } from "lucide-react";
 import { processDocument } from '../utils/file/documentProcessor';
 import { processImageForVerification } from '../utils/imageVerificationProcessor';
@@ -62,9 +65,7 @@ const IssueCertificate = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/documents/history', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await API.get('/documents/history');
       setHistory(res.data.data || []);
     } catch (err) {
       console.error('History fetch error', err);
@@ -120,8 +121,21 @@ const IssueCertificate = () => {
   const handleSeal = async () => {
     if (isIssuing || sealData) return;
 
-    if (!file || !issuedTo || !issuedBy || !issueDate || !documentType) {
-      toaster.create({ title: 'Missing fields', description: 'Please fill in all metadata fields and upload a file.', type: 'error' });
+    const missing = [];
+    if (!file) missing.push("Document File");
+    if (!issuedTo) missing.push("Issued To");
+    if (!issuedBy) missing.push("Issuer Department");
+    if (!issueDate) missing.push("Issue Date");
+    if (!documentType) missing.push("Document Type");
+
+    if (missing.length > 0) {
+      toaster.create({ title: 'Missing details', description: `Please provide: ${missing.join(', ')}`, type: 'error' });
+      return;
+    }
+
+    const allowedTypes = ['Academic Degree', 'Medical Report', 'Legal Document', 'Offer Letter', 'Identity Document', 'Other'];
+    if (!allowedTypes.includes(documentType)) {
+      toaster.create({ title: 'Invalid Type', description: 'Please select a valid document type from the dropdown.', type: 'error' });
       return;
     }
 
@@ -152,16 +166,7 @@ const IssueCertificate = () => {
         fields: processed.fields || {}
       };
 
-      const res = await axios.post(
-        'http://localhost:5000/api/documents/issue',
-        proofPayload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const res = await API.post('/documents/issue', proofPayload);
 
       setSealData(res.data);
       fetchHistory();
@@ -173,6 +178,38 @@ const IssueCertificate = () => {
     } finally {
       setIsIssuing(false);
     }
+  };
+
+  const handleDownloadQR = () => {
+    if (!sealData?.qrCode) return;
+    const a = document.createElement('a');
+    a.href = sealData.qrCode;
+    a.download = `DocuTrust_QR_${sealData.sealId}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDownloadSealId = () => {
+    if (!sealData?.sealId) return;
+    const content = `DocuTrust Seal Verification
+---------------------------
+Seal ID: ${sealData.sealId}
+Document Type: ${documentType}
+Issued To: ${issuedTo}
+Issued By: ${issuedBy}
+Date: ${new Date().toLocaleString()}
+
+You can verify this document at:
+${window.location.origin}/verify/${sealData.sealId}
+`;
+    const element = document.createElement("a");
+    const file = new Blob([content], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `DocuTrust_SealInfo_${sealData.sealId}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   return (
@@ -430,6 +467,15 @@ const IssueCertificate = () => {
                     <Text fontSize="sm" color="whiteAlpha.600" textAlign="center" maxW="400px" mt={2}>
                       Generated cryptographic seal anchored on {new Date(sealData.metadata?.createdAt || Date.now()).toLocaleString()}
                     </Text>
+
+                    <HStack gap={4} mt={2}>
+                      <Button size="sm" variant="outline" color="green.400" borderColor="green.500" _hover={{ bg: "rgba(74, 222, 128, 0.1)" }} onClick={handleDownloadQR}>
+                        <Download size={14} style={{ marginRight: '6px' }} /> Save QR Code
+                      </Button>
+                      <Button size="sm" variant="outline" color="green.400" borderColor="green.500" _hover={{ bg: "rgba(74, 222, 128, 0.1)" }} onClick={handleDownloadSealId}>
+                        <FileText size={14} style={{ marginRight: '6px' }} /> Save Seal Info
+                      </Button>
+                    </HStack>
                   </VStack>
                   <Button mt={8} w="full" variant="outline" borderColor="green.500" color="green.400" _hover={{ bg: "rgba(74, 222, 128, 0.1)" }} onClick={handleReset}>
                     + Issue Another Document

@@ -10,10 +10,8 @@ import {
   SimpleGrid,
   Icon,
   Badge,
-  Dialog,
-  Portal,
 } from "@chakra-ui/react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toaster } from '../components/ui/toaster';
 import {
@@ -114,23 +112,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [dialogMode, setDialogMode] = useState('seal'); // 'seal' or 'verify'
-
-  const openChoice = (mode) => {
-    setDialogMode(mode);
-    setIsOpen(true);
-  };
-
-  const handleSelectType = (type) => {
-    setIsOpen(false);
-    if (type === 'image') {
-      navigate('/image-verify');
-    } else {
-      navigate('/process');
-    }
-  };
-
   const handleLogout = () => {
     logout();
     toaster.create({
@@ -147,116 +128,6 @@ const Dashboard = () => {
 
   return (
     <Box minH="100vh" bg="black" color="white" overflowX="hidden">
-      {/* Selection Dialog Modal */}
-      <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
-        <Portal>
-          <Dialog.Backdrop bg="blackAlpha.800" backdropFilter="blur(8px)" />
-          <Dialog.Positioner>
-            <Dialog.Content bg="rgba(10,10,10,0.95)" border="1px solid" borderColor="whiteAlpha.100" borderRadius="2xl" p={6}>
-              <Dialog.Header>
-                <Dialog.Title color="white" fontSize="xl" fontWeight="black" letterSpacing="tight">
-                  {dialogMode === 'seal' ? 'Seal a Document' : 'Verify a Document'}
-                </Dialog.Title>
-                <Dialog.Description color="whiteAlpha.500" fontSize="xs">
-                  Choose the format to select the optimized browser-side verification pipeline.
-                </Dialog.Description>
-              </Dialog.Header>
-              <Dialog.Body>
-                <Stack gap={4} mt={4}>
-                  {/* Option 1: Images & Scans */}
-                  <Flex
-                    as="button"
-                    align="center"
-                    gap={4}
-                    p={4}
-                    bg="rgba(183,148,244,0.03)"
-                    border="1px solid"
-                    borderColor="purple.500/20"
-                    borderRadius="xl"
-                    onClick={() => handleSelectType('image')}
-                    _hover={{ bg: "rgba(183,148,244,0.08)", borderColor: "purple.500/50", transform: "translateY(-2px)" }}
-                    transition="all 0.2s"
-                    textAlign="left"
-                    w="full"
-                  >
-                    <Box
-                      boxSize={12}
-                      bg="purple.950"
-                      border="1px solid"
-                      borderColor="purple.800"
-                      borderRadius="xl"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      flexShrink={0}
-                    >
-                      <ImageIcon size={20} color="#b794f4" />
-                    </Box>
-                    <Box flex={1}>
-                      <Text fontWeight="bold" color="white" fontSize="sm">Images &amp; Photo Scans</Text>
-                      <Text fontSize="xs" color="whiteAlpha.400" mt={0.5}>
-                        JPG, PNG formats. Uses visual similarity (pHash) and OCR. Best for screenshots, scanned certificates, and photo uploads.
-                      </Text>
-                    </Box>
-                  </Flex>
-
-                  {/* Option 2: Digital PDF */}
-                  <Flex
-                    as="button"
-                    align="center"
-                    gap={4}
-                    p={4}
-                    bg="rgba(72,187,120,0.03)"
-                    border="1px solid"
-                    borderColor="green.500/20"
-                    borderRadius="xl"
-                    onClick={() => handleSelectType('pdf')}
-                    _hover={{ bg: "rgba(72,187,120,0.08)", borderColor: "green.500/50", transform: "translateY(-2px)" }}
-                    transition="all 0.2s"
-                    textAlign="left"
-                    w="full"
-                  >
-                    <Box
-                      boxSize={12}
-                      bg="green.950"
-                      border="1px solid"
-                      borderColor="green.800"
-                      borderRadius="xl"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      flexShrink={0}
-                    >
-                      <FileText size={20} color="#68d391" />
-                    </Box>
-                    <Box flex={1}>
-                      <Text fontWeight="bold" color="white" fontSize="sm">Digital PDFs</Text>
-                      <Text fontSize="xs" color="whiteAlpha.400" mt={0.5}>
-                        PDF format. Uses semantic normalized content hashing (SHA-256) and supplemental OCR. Best for electronic documents.
-                      </Text>
-                    </Box>
-                  </Flex>
-                </Stack>
-              </Dialog.Body>
-              <Dialog.Footer mt={4}>
-                <Dialog.ActionTrigger asChild>
-                  <Button
-                    variant="outline"
-                    borderColor="whiteAlpha.200"
-                    color="whiteAlpha.600"
-                    _hover={{ bg: "whiteAlpha.100", color: "white" }}
-                    onClick={() => setIsOpen(false)}
-                    size="sm"
-                    borderRadius="full"
-                  >
-                    Cancel
-                  </Button>
-                </Dialog.ActionTrigger>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Portal>
-      </Dialog.Root>
 
       {/* Ambient background */}
       <Box
@@ -303,21 +174,32 @@ const Dashboard = () => {
             </Flex>
 
             <Flex gap={3} ml="auto" align="center">
-              <Flex align="center" gap={2}>
-                <Box
-                  boxSize={8}
-                  bg="whiteAlpha.100"
-                  borderRadius="full"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <User size={16} color="white" />
-                </Box>
-                <Text fontSize="sm" color="whiteAlpha.700" display={{ base: 'none', sm: 'block' }}>
-                  {displayName}
-                </Text>
-              </Flex>
+              <Button
+                as={Link}
+                to="/profile"
+                variant="ghost"
+                height="auto"
+                py={1}
+                px={3}
+                borderRadius="full"
+                _hover={{ bg: 'whiteAlpha.100' }}
+              >
+                <Flex align="center" gap={2}>
+                  <Box
+                    boxSize={7}
+                    bg="whiteAlpha.200"
+                    borderRadius="full"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <User size={14} color="white" />
+                  </Box>
+                  <Text fontSize="sm" color="whiteAlpha.800" display={{ base: 'none', sm: 'block' }}>
+                    {displayName}
+                  </Text>
+                </Flex>
+              </Button>
 
               <Button
                 variant="ghost"
@@ -366,20 +248,13 @@ const Dashboard = () => {
             <Heading size="lg" mb={6} fontWeight="bold">
               Quick Actions
             </Heading>
-            <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
               <ActionCard
                 icon={Upload}
                 title="Seal a Document"
                 description="Upload a document to generate its cryptographic Seal ID and store the hash proof."
                 badge="Ready"
                 onClick={() => navigate('/issue-document')}
-              />
-              <ActionCard
-                icon={FileSearch}
-                title="Verify a Document"
-                description="Check a document against an existing Seal ID using OCR and perceptual hashing."
-                badge="Ready"
-                onClick={() => openChoice('verify')}
               />
               <ActionCard
                 icon={Activity}

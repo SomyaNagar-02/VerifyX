@@ -1,6 +1,5 @@
 const { generateVerificationResponse } = require('../utils/generateVerificationResponse');
 const { compareOCR } = require('../utils/compareOCR');
-const { compareFields } = require('../utils/compareFields');
 const { calculateConfidence } = require('../utils/calculateConfidence');
 const { determineVerificationState } = require('../utils/determineVerificationState');
 
@@ -39,38 +38,30 @@ const verifyDocument = (storedDoc, payload) => {
 
   // 1. OCR Similarity
   const { similarity: ocrSimilarity } = compareOCR(storedDoc.ocrText, payload.ocrText);
-  
-  // 2. Field Comparison
-  const fieldResult = compareFields(storedDoc.fields, payload.fields);
 
-  // 3. Confidence Calculation
+  // 2. Confidence Calculation
   const { overallConfidence } = calculateConfidence({
     hashSimilarity,
     ocrSimilarity,
-    fieldSimilarity: fieldResult.fieldSimilarity,
     pHashSimilarity,
     isExactHashMatch
   });
 
-  // 4. Verification State Engine
+  // 3. Verification State Engine
   const { result, message } = determineVerificationState({
     isExactHashMatch,
     overallConfidence,
-    criticalMismatch: fieldResult.criticalMismatch,
-    ocrSimilarity,
-    fieldSimilarity: fieldResult.fieldSimilarity
+    ocrSimilarity
   });
 
-  // 5. Final output format
+  // 4. Final output format
   return {
     result,
     message,
     confidence: {
       overall: overallConfidence,
-      ocr: ocrSimilarity,
-      field: fieldResult.fieldSimilarity
+      ocr: ocrSimilarity
     },
-    fieldComparison: fieldResult,
     ocrComparison: { similarity: ocrSimilarity }
   };
 };

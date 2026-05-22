@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../services/api";
 
 import {
   ChevronLeft,
@@ -35,14 +35,7 @@ const History = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/documents/history?limit=100",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await API.get("/documents/history?limit=100");
 
       setHistory(res.data.data || []);
     } catch (error) {

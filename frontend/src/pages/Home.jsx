@@ -13,8 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { Link } from 'react-router-dom';
 import { ShieldCheck, FileText, Lock, Fingerprint, Search, Globe } from "lucide-react";
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
+  const { isAuthenticated } = useAuth();
   return (
     <Box bg="black" minH="100vh" color="white" overflowX="hidden">
       {/* Navigation */}
@@ -45,13 +47,24 @@ const Home = () => {
               <ChakraLink href="#" fontSize="sm" fontWeight="medium" color="whiteAlpha.700" _hover={{ color: 'green.400' }}>Security</ChakraLink>
             </Flex>
 
-            <Flex gap={4} ml="auto">
-              <Button as={Link} to="/login" variant="ghost" color="whiteAlpha.800" _hover={{ bg: 'whiteAlpha.100', color: 'white' }}>
-                Login
+            <Flex gap={4} ml="auto" align="center">
+              <Button as={Link} to="/manual-verify" variant="outline" borderColor="whiteAlpha.300" color="white" _hover={{ bg: 'whiteAlpha.100' }} borderRadius="full" px={6}>
+                Verify Document
               </Button>
-              <Button as={Link} to="/signup" colorPalette="green" variant="solid" px={6} borderRadius="full">
-                Get Started
-              </Button>
+              {isAuthenticated ? (
+                <Button as={Link} to="/dashboard" colorPalette="green" variant="solid" px={6} borderRadius="full">
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button as={Link} to="/login" variant="ghost" color="whiteAlpha.800" _hover={{ bg: 'whiteAlpha.100', color: 'white' }}>
+                    Login
+                  </Button>
+                  <Button as={Link} to="/signup" colorPalette="green" variant="solid" px={6} borderRadius="full">
+                    Get Started
+                  </Button>
+                </>
+              )}
             </Flex>
           </Flex>
         </Container>
@@ -106,10 +119,10 @@ const Home = () => {
             
             <Stack direction={{ base: 'column', sm: 'row' }} gap={6} mt={4}>
               <Button as={Link} to="/signup" size="xl" colorPalette="green" px={10} borderRadius="full" fontSize="md">
-                Start Verifying
+                Create Account
               </Button>
-              <Button variant="outline" size="xl" borderColor="whiteAlpha.300" color="white" borderRadius="full" px={10} fontSize="md" _hover={{ bg: 'whiteAlpha.100' }}>
-                How it works
+              <Button as={Link} to="/manual-verify" variant="outline" size="xl" borderColor="whiteAlpha.300" color="white" borderRadius="full" px={10} fontSize="md" _hover={{ bg: 'whiteAlpha.100' }}>
+                Verify a Document
               </Button>
             </Stack>
           </Stack>

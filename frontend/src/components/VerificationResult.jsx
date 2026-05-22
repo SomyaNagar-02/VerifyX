@@ -20,8 +20,10 @@ const VerificationResult = ({ verificationData, onReset }) => {
   // Determine theme colors and copy based on result
   let theme = {
     color: 'green.400',
+    hexColor: '#4ade80',
     bg: 'rgba(74, 222, 128, 0.05)',
     border: 'green.500',
+    shadowColor: 'rgba(74, 222, 128, 0.2)',
     icon: CheckCircle,
     title: 'Document Verified',
     subtitle: 'No meaningful tampering detected.',
@@ -31,8 +33,10 @@ const VerificationResult = ({ verificationData, onReset }) => {
   if (result === 'YELLOW') {
     theme = {
       color: 'yellow.400',
+      hexColor: '#ecc94b',
       bg: 'rgba(236, 201, 75, 0.05)',
       border: 'yellow.500',
+      shadowColor: 'rgba(236, 201, 75, 0.2)',
       icon: AlertTriangle,
       title: 'Minor Differences Detected',
       subtitle: 'Semantic content mostly matches.',
@@ -41,8 +45,10 @@ const VerificationResult = ({ verificationData, onReset }) => {
   } else if (result === 'RED') {
     theme = {
       color: 'red.400',
+      hexColor: '#f56565',
       bg: 'rgba(245, 101, 101, 0.05)',
       border: 'red.500',
+      shadowColor: 'rgba(245, 101, 101, 0.2)',
       icon: XCircle,
       title: 'Document Tampered',
       subtitle: 'Critical mismatch detected.',
@@ -84,14 +90,14 @@ const VerificationResult = ({ verificationData, onReset }) => {
       display="flex"
       flexDirection="column"
       position="relative"
-      boxShadow={`0 0 40px -10px var(--chakra-colors-${theme.border.split('.')[0]}-900)`}
+      boxShadow={`0 0 40px -10px ${theme.shadowColor}`}
     >
       <VStack gap={6} align="center" textAlign="center" flex={1} justifyContent="center">
         
         {/* Status Icon & Header */}
         <VStack gap={3}>
           <Box p={4} borderRadius="full" bg={`rgba(0,0,0,0.4)`} borderWidth={1} borderColor={theme.border}>
-            <IconComponent size={56} color={`var(--chakra-colors-${theme.color.replace('.', '-')})`} />
+            <IconComponent size={56} color={theme.hexColor} />
           </Box>
           <Badge colorPalette={result === 'GREEN' ? 'green' : result === 'YELLOW' ? 'yellow' : 'red'} variant="solid" size="lg" px={4} py={1} borderRadius="full">
             {result} STATE
@@ -114,8 +120,6 @@ const VerificationResult = ({ verificationData, onReset }) => {
           
           <VStack gap={4} align="stretch">
             {confidence?.overall !== undefined && renderConfidenceBar('Overall Confidence', confidence.overall)}
-            {confidence?.ocr !== undefined && renderConfidenceBar('OCR Similarity', confidence.ocr)}
-            {confidence?.field !== undefined && renderConfidenceBar('Field Match', confidence.field)}
           </VStack>
         </Box>
 
@@ -132,10 +136,12 @@ const VerificationResult = ({ verificationData, onReset }) => {
           onClick={onReset}
           size="md"
           borderRadius="full"
-          leftIcon={<RotateCcw size={16} />}
           _hover={{ bg: 'whiteAlpha.100' }}
         >
-          Verify Another Document
+          <Flex align="center" gap={2}>
+            <RotateCcw size={16} />
+            <Text>Verify Another Document</Text>
+          </Flex>
         </Button>
       </VStack>
     </Box>

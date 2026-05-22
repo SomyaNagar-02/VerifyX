@@ -27,11 +27,21 @@ const compareFields = (storedFields, uploadedFields) => {
     return { matchedFields, mismatchedFields, criticalMismatch: false, fieldSimilarity: 100 };
   }
 
-  keys.forEach(key => {
-    const val1 = normalizeText(sf[key]);
-    const val2 = normalizeText(uf[key]);
+  let validKeysCount = 0;
 
-    if (val1 && val2 && val1 === val2) {
+  keys.forEach(key => {
+    const val1 = normalizeText(sf[key]) || '';
+    const val2 = normalizeText(uf[key]) || '';
+
+    // If a field is empty in both the stored and uploaded document, 
+    // it simply wasn't found in either. We skip it so it doesn't skew the score.
+    if (val1 === '' && val2 === '') {
+      return;
+    }
+
+    validKeysCount++;
+
+    if (val1 === val2) {
       matchedFields.push(key);
     } else {
       mismatchedFields.push(key);
@@ -41,7 +51,7 @@ const compareFields = (storedFields, uploadedFields) => {
     }
   });
 
-  const fieldSimilarity = Math.round((matchedFields.length / keys.length) * 100);
+  const fieldSimilarity = validKeysCount > 0 ? Math.round((matchedFields.length / validKeysCount) * 100) : 100;
 
   return {
     matchedFields,

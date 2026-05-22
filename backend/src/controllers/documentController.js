@@ -210,7 +210,7 @@ const issueDocument = asyncHandler(async (req, res) => {
     issuedTo,
     issuedBy,
     issueDate,
-    documentType: documentType || 'Certificate',
+    documentType: documentType || 'Other',
     ocrText: ocrText || '',
     fields: fields || {},
     qrCode,
