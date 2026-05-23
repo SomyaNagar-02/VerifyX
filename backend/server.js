@@ -9,6 +9,7 @@ const connectDB = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
 const documentRoutes = require('./src/routes/documentRoutes');
 const verificationRoutes = require('./src/routes/verificationRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
 const errorHandler = require('./src/middlewares/errorHandler');
 
 // ─── Validate critical env vars at startup ─────────────────────────────────────
@@ -69,6 +70,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api', verificationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ─── 404 Handler (unmatched routes) ───────────────────────────────────────────
 app.use((req, res) => {

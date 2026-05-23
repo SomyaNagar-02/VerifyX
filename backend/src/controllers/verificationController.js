@@ -20,8 +20,23 @@ exports.getDocumentMetadata = asyncHandler(async (req, res) => {
   const document = await Document.findOne({ sealId });
 
   if (!document) {
+    // Log failed search attempt
+    await AuditLog.create({
+      action: 'SEARCH',
+      sealId: sealId,
+      result: 'FAILED',
+      ipAddress: req.ip || req.connection.remoteAddress
+    });
     return res.status(404).json(generateErrorResponse("Document not found"));
   }
+
+  // Log successful search attempt
+  await AuditLog.create({
+    action: 'SEARCH',
+    sealId: document.sealId,
+    result: 'SUCCESS',
+    ipAddress: req.ip || req.connection.remoteAddress
+  });
 
   res.status(200).json({
     issuedTo: document.issuedTo,

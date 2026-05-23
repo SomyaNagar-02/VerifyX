@@ -10,6 +10,7 @@ import TestImageVerification from './pages/TestImageVerification';
 import VerifyEntry from './pages/VerifyEntry';
 import VerifyDocument from './pages/VerifyDocument';
 import Profile from './pages/Profile';
+import AuditLogs from './pages/AuditLogs';
 import ProtectedRoute from './routes/ProtectedRoute';
 import PublicRoute from './routes/PublicRoute';
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/process" element={<TestProcessing />} />
         <Route path="/image-verify" element={<TestImageVerification />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/audit-logs" element={<AuditLogs />} />
       </Route>
     </Routes>
   );
