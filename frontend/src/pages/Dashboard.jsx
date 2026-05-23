@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import {
   Image as ImageIcon,
   FileText,
 } from "lucide-react";
+import API from '../services/api';
 
 // ─── Stat Card ─────────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: IconComp, color }) => (
@@ -111,6 +112,22 @@ const ActionCard = ({ icon: IconComp, title, description, badge, onClick }) => (
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+
+  const [stats, setStats] = useState({ documentsSealed: '—', verificationsRun: '—', auditLogsCount: '—', role: 'Issuer' });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await API.get('/admin/stats');
+        if (res.data?.success) {
+          setStats(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -237,10 +254,10 @@ const Dashboard = () => {
 
           {/* Stats Row */}
           <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} gap={4}>
-            <StatCard label="Documents Sealed" value="—" icon={Lock} />
-            <StatCard label="Verifications Run" value="—" icon={Activity} />
-            <StatCard label="Audit Logs" value="—" icon={FileSearch} />
-            <StatCard label="Account Role" value="Issuer" icon={ShieldCheck} />
+            <StatCard label="Documents Sealed" value={stats.documentsSealed} icon={Lock} />
+            <StatCard label="Verifications Run" value={stats.verificationsRun} icon={Activity} />
+            <StatCard label="Audit Logs" value={stats.auditLogsCount} icon={FileSearch} />
+            <StatCard label="Account Role" value={stats.role || 'Issuer'} icon={ShieldCheck} />
           </SimpleGrid>
 
           {/* Actions */}
@@ -260,7 +277,8 @@ const Dashboard = () => {
                 icon={Activity}
                 title="Audit Logs"
                 description="Review a full timestamped log of all verification events tied to your account."
-                badge="Coming Soon"
+                badge="Live"
+                onClick={() => navigate('/audit-logs')}
               />
             </SimpleGrid>
           </Box>
